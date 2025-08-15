@@ -1,0 +1,65 @@
+name: Full Production Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: 24
+
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # 3️⃣ Install dependencies (frontend + root)
+      - name: Install root dependencies
+        run: npm ci
+
+      # 4️⃣ Build frontend
+      - name: Build frontend
+        run: npm run build:frontend
+
+      # 5️⃣ Deploy frontend to Firebase Hosting
+      - name: Deploy frontend to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HARMONY_AFRICA_3E243 }}
+          channelId: live
+          projectId: harmony-africa-3e243
+
+      # 6️⃣ Setup Google Cloud SDK for backend
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          credentials: ${{ secrets.GCP_SA_KEY }}
+
+      # 7️⃣ Build backend
+      - name: Build backend
+        run: |
+          cd server
+          npm ci
+          npm run build
+
+      # 8️⃣ Deploy backend to Cloud Run
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy harmony-africa-server \
+            --image=gcr.io/${{ secrets.GCP_PROJECT_ID }}/harmony-africa-server:latest \
+            --platform=managed \
+            --region=${{ secrets.GCP_REGION }} \
+            --allow-unauthenticated \
+            --quiet

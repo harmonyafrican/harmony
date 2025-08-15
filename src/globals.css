@@ -1,0 +1,92 @@
+/* === Tailwind v4 Required Imports === */
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+/* === Global Styles === */
+:root {
+  --brand-gold: #FBBF24;
+  --brand-green: #047857;
+  --brand-blue: #2563EB;
+  --brand-brown: #92400E;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular;
+}
+
+/* === Base HTML === */
+html {
+  scroll-behavior: smooth;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: white;
+  color: #1f2937; /* text-gray-900 */
+  line-height: 1.6;
+}
+
+/* === Typography === */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: #1f2937; /* text-gray-800 */
+}
+
+p {
+  margin-bottom: 1rem;
+  color: #374151; /* text-gray-700 */
+}
+
+/* === Links === */
+a {
+  color: #2563eb; /* primary blue */
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #1d4ed8; /* darker primary */
+}
+
+/* === Buttons === */
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.button-primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.button-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.button-secondary {
+  background-color: #e5e7eb; /* gray-200 */
+  color: #111827; /* gray-900 */
+}
+
+.button-secondary:hover {
+  background-color: #d1d5db; /* gray-300 */
+}
+
+/* === Container Utility === */
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  max-width: 1280px;
+}
+
+/* === Scrollbar Styling (Optional) === */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 4px;
+}

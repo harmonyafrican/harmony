@@ -1,0 +1,72 @@
+name: Deploy Harmony Africa
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+      FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HARMONY_AFRICA_3E243 }}
+      CORS_ORIGIN_PROD: https://harmonyafrica.org
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # 3. Install frontend dependencies
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # 4. Build frontend
+      - name: Build frontend
+        run: npm run build:frontend
+
+      # 5. Install backend dependencies
+      - name: Install backend dependencies
+        working-directory: ./server
+        run: npm ci
+
+      # 6. Build backend
+      - name: Build backend
+        working-directory: ./server
+        run: npm run build
+
+      # 7. Deploy frontend to Firebase Hosting
+      - name: Deploy frontend to Firebase Hosting
+        uses: w9jds/firebase-action@v3
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HARMONY_AFRICA_3E243 }}
+
+      # 8. Deploy backend to Cloud Run
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: ${{ secrets.FIREBASE_PROJECT_ID }}
+          service_account_key: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_HARMONY_AFRICA_3E243 }}
+
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy harmony-africa-api \
+            --source ./server \
+            --region us-central1 \
+            --platform managed \
+            --allow-unauthenticated \
+            --project ${{ secrets.FIREBASE_PROJECT_ID }}
